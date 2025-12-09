@@ -1,44 +1,45 @@
 # BLEUPrint – Financial Literacy Board Game
 
-**Play instantly →** (your live link will go here once hosted)
+**Official Live Game** → (add your link here once hosted)
 
-![BLEUPrint screenshot](https://raw.githubusercontent.com/yourusername/bleuprint/main/screenshot.png)
+![BLEUPrint Screenshot](screenshot.png)
 
-**BLEUPrint** is a free, open-source, single-file HTML5 board game that teaches real-world financial sovereignty through strategic, fun gameplay.
+**BLEUPrint** is an original, single-file HTML5 board game that teaches financial sovereignty through real-world grant applications, systemic barriers, community support, investments, and strategic power-ups.
 
-Inspired by classic board games but built around **grants, systemic barriers, community wealth, investments, and power-ups**, players race to reach **100 Wealth Points** and win.
+Players compete to be the first to reach **100 Wealth Points (WP)** and win.
+
+### 100 % Created by Bleurayn
+- **Author / Creator / Designer**: Bleurayn  
+- **Copyright**: © 2025 Bleurayn. All rights reserved.  
+- **Everything** — game design, rules, code, visuals, card content, financial-literacy curriculum, sound system, UI/UX, mobile optimizations, AI opponent — is the sole original work of Bleurayn.  
+No part of this game was created by a team, community, or third party.
 
 ### Features
-- Stunning cyber-neon design with animations & sound
-- Solo or vs smart AI opponent
-- Real grant scenarios with educational takeaways
-- Systemic obstacles reflecting actual challenges
-- Power-ups, achievements, save/load, mobile swipe support
-- 100 % offline-capable & installable as a PWA
-- Zero dependencies — one single HTML file
-
-### Created 2024–2025
-
-### Creator
-**Created and designed entirely by Bleurayn**  
-All code, art direction, game design, financial literacy content, and updates are the original work of Bleurayn.
+- Stunning cyber-neon aesthetic with full animations & sound
+- Play solo or against an intelligent AI opponent
+- Realistic grant missions with educational takeaways
+- Systemic obstacles that reflect actual challenges
+- Power-ups, achievements, save/load, mobile swipe controls
+- Zero dependencies – runs from one single HTML file
+- Works offline and can be installed as a PWA
 
 ### How to Play
-1. Open the live link (or download `index.html`)
-2. Click “ROLL DICE” → move around the board
-3. Land on GRANT → attempt real-world funding missions
+1. Open the game (online or local `index.html`)
+2. Roll the dice → move around the board
+3. Land on GRANT → attempt funding missions
 4. Overcome BARRIER spaces with resources
-5. Collect POWER-UPs and build community support
-6. First to 100 Wealth Points wins!
+5. Collect POWER-UPs and community support
+6. First to 100 WP wins!
 
-### Run Locally
-Download `index.html` and double-click — works offline forever.
+### Running the Game
+Just open `index.html` in any browser — no server needed.
 
 ### License
-MIT License – free to play, share, modify, and use in classrooms, workshops, or programs (credit to Bleurayn appreciated but not required).
+This project is the private intellectual property of Bleurayn.  
+You may play it, share the direct link, and use it for personal or educational purposes.  
+Redistribution, modification, or commercial use requires explicit written permission from Bleurayn.
 
-### Contact / Support the Creator
-- GitHub: @bleurayn
-- Want to support future versions, printable boards, or school licenses? Reach out!
+### Contact
+All questions, permissions, collaboration, or licensing requests → reach out directly to Bleurayn.
 
-Created with passion for financial education by **Bleurayn** — 2025 
+**BLEUPrint** – Created solely by Bleurayn, 2024–2025
