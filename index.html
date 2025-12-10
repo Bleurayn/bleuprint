@@ -792,9 +792,10 @@
                 </div>
                 <div class="game-controls">
                     <button class="control-btn" onclick="startNewGame()">🎮 NEW GAME</button>
+                    <button class="control-btn" onclick="addHumanPlayer()">➕ ADD PLAYER</button>
+                    <button class="control-btn" onclick="toggleAI()">🤖 ADD AI</button>
                     <button class="control-btn" onclick="saveGame()">💾 SAVE GAME</button>
                     <button class="control-btn" onclick="loadGame()">📂 LOAD GAME</button>
-                    <button class="control-btn" onclick="toggleAI()">🤖 ADD AI</button>
                 </div>
             </div>
 
@@ -945,7 +946,7 @@
             }
         };
 
-        // Card Databases
+        // Card Databases - Expanded with more variety
         const missionCards = [
             {
                 title: "Small Business Grant",
@@ -1018,6 +1019,69 @@
                 wealthReward: 8,
                 resourceCost: 1,
                 learning: "Youth-focused funding opportunities"
+            },
+            {
+                title: "Housing Assistance Grant",
+                description: "First-time homebuyer assistance program",
+                requirements: "Credit Score Check + 2 Resource Tokens",
+                successRate: 65,
+                wealthReward: 20,
+                resourceCost: 2,
+                learning: "HUD and housing finance programs"
+            },
+            {
+                title: "Agricultural Development Fund",
+                description: "Support for urban farming initiatives",
+                requirements: "Land Access + 2 Resource Tokens",
+                successRate: 70,
+                wealthReward: 16,
+                resourceCost: 2,
+                learning: "USDA grant programs"
+            },
+            {
+                title: "Digital Literacy Grant",
+                description: "Fund community tech education programs",
+                requirements: "Training Plan + 1 Resource Token",
+                successRate: 75,
+                wealthReward: 12,
+                resourceCost: 1,
+                learning: "Digital divide funding sources"
+            },
+            {
+                title: "Workforce Development Grant",
+                description: "Job training and placement program funding",
+                requirements: "Partnership Agreement + 3 Resource Tokens",
+                successRate: 60,
+                wealthReward: 18,
+                resourceCost: 3,
+                learning: "Department of Labor programs"
+            },
+            {
+                title: "Research & Development Grant",
+                description: "Fund innovative research projects",
+                requirements: "Research Proposal + 4 Resource Tokens",
+                successRate: 45,
+                wealthReward: 30,
+                resourceCost: 4,
+                learning: "NSF and research funding"
+            },
+            {
+                title: "Emergency Relief Fund",
+                description: "Disaster recovery assistance grant",
+                requirements: "Impact Assessment + 1 Resource Token",
+                successRate: 90,
+                wealthReward: 10,
+                resourceCost: 1,
+                learning: "FEMA and emergency funding"
+            },
+            {
+                title: "Social Enterprise Grant",
+                description: "Fund businesses with social impact",
+                requirements: "Impact Metrics + 2 Resource Tokens",
+                successRate: 65,
+                wealthReward: 17,
+                resourceCost: 2,
+                learning: "B-Corp and social venture funding"
             }
         ];
 
@@ -1293,14 +1357,73 @@
         }
 
         function createPlayers() {
-            const playerData = [
-                { name: "Player 1", color: "#00ffcc", avatar: "👤", wealth: 10, resources: 3, position: 0, skipTurns: 0, powerUps: [], isAI: false },
-                { name: "AI Player", color: "#ff00ff", avatar: "🤖", wealth: 10, resources: 3, position: 0, skipTurns: 0, powerUps: [], isAI: true }
-            ];
+            const playerColors = ["#00ffcc", "#ff00ff", "#ffaa00", "#00aaff", "#ff6b6b", "#34d399"];
+            const playerData = [];
             
-            gameState.players = gameState.aiEnabled ? playerData : [playerData[0]];
+            // Always start with at least one human player
+            playerData.push({
+                name: "Player 1",
+                color: playerColors[0],
+                avatar: "👤",
+                wealth: 10,
+                resources: 3,
+                position: 0,
+                skipTurns: 0,
+                powerUps: [],
+                isAI: false
+            });
+            
+            // Add AI player if enabled
+            if (gameState.aiEnabled) {
+                playerData.push({
+                    name: "AI Player",
+                    color: playerColors[1],
+                    avatar: "🤖",
+                    wealth: 10,
+                    resources: 3,
+                    position: 0,
+                    skipTurns: 0,
+                    powerUps: [],
+                    isAI: true
+                });
+            }
+            
+            gameState.players = playerData;
             updatePlayerDisplay();
             placePlayerTokens();
+        }
+
+        function addHumanPlayer() {
+            if (!gameState.gameActive) {
+                showModal("Start Game First", "Please start a new game before adding players!");
+                return;
+            }
+            
+            if (gameState.players.length >= 6) {
+                showModal("Maximum Players", "Maximum of 6 players reached!");
+                return;
+            }
+            
+            const playerColors = ["#00ffcc", "#ff00ff", "#ffaa00", "#00aaff", "#ff6b6b", "#34d399"];
+            const humanPlayerCount = gameState.players.filter(p => !p.isAI).length;
+            
+            const newPlayer = {
+                name: `Player ${humanPlayerCount + 1}`,
+                color: playerColors[gameState.players.length % playerColors.length],
+                avatar: "👤",
+                wealth: 10,
+                resources: 3,
+                position: 0,
+                skipTurns: 0,
+                powerUps: [],
+                isAI: false
+            };
+            
+            gameState.players.push(newPlayer);
+            updatePlayerDisplay();
+            placePlayerTokens();
+            showNotification(`${newPlayer.name} joined the game!`, 2000);
+            playSound('success');
         }
 
         function initializeAchievements() {
@@ -1531,7 +1654,7 @@
                     
                     if (!currentPlayer.isAI) {
                         cardActions.innerHTML = `
-                            <button class="action-button" onclick="attemptMission()">ATTEMPT MISSION</button>
+                            <button class="action-button" onclick="attemptMission()" ${currentPlayer.resources < missionCard.resourceCost ? 'disabled' : ''}>ATTEMPT MISSION</button>
                             <button class="action-button secondary" onclick="skipMission()">SKIP</button>
                         `;
                     } else {
@@ -1665,8 +1788,17 @@
                 currentPlayer.wealth += reward;
                 gameState.statistics.grantsCompleted++;
                 addLogEntry(`✅ ${currentPlayer.name} succeeded! +${reward} WP`);
-                showModal("Mission Success!", `Congratulations! You earned ${reward} Wealth Points!`);
+                showModal("Mission Success!", 
+                    `<p style="font-size: 1.2em; color: #00ffcc;">Mission Accomplished!</p>
+                    <p style="margin-top: 15px;">You successfully completed: <strong>${card.title}</strong></p>
+                    <p style="margin-top: 10px;">Reward: <strong>${reward} Wealth Points</strong></p>
+                    <p style="margin-top: 15px; font-style: italic; color: #667eea;">📚 You learned: ${card.learning}</p>`
+                );
                 playSound('success');
+                
+                // Clear card display after success
+                document.getElementById('cardContent').innerHTML = '<p>Mission completed! End your turn when ready.</p>';
+                document.getElementById('cardActions').innerHTML = '';
                 
                 // Check achievement
                 if (gameState.statistics.grantsCompleted === 1) {
@@ -1674,8 +1806,17 @@
                 }
             } else {
                 addLogEntry(`❌ ${currentPlayer.name}'s mission failed`);
-                showModal("Mission Failed", "Your application wasn't approved. Keep trying!");
+                showModal("Mission Failed", 
+                    `<p style="color: #ff6b6b;">Your application for "${card.title}" wasn't approved this time.</p>
+                    <p style="margin-top: 15px;">Success Rate: ${successRate}%</p>
+                    <p style="margin-top: 10px;">Keep building your skills and try again!</p>
+                    <p style="margin-top: 15px; font-style: italic; color: #667eea;">💡 Tip: Collect power-ups to increase your success rate!</p>`
+                );
                 playSound('failure');
+                
+                // Clear card display after failure
+                document.getElementById('cardContent').innerHTML = '<p>Mission failed. End your turn when ready.</p>';
+                document.getElementById('cardActions').innerHTML = '';
             }
             
             gameState.currentCard = null;
@@ -1927,24 +2068,39 @@
         }
 
         function toggleAI() {
+            if (!gameState.gameActive) {
+                showModal("Start Game First", "Please start a new game before adding AI!");
+                return;
+            }
+            
+            if (gameState.players.length >= 6) {
+                showModal("Maximum Players", "Maximum of 6 players reached!");
+                return;
+            }
+            
             gameState.aiEnabled = !gameState.aiEnabled;
-            if (gameState.aiEnabled && gameState.players.length === 1) {
-                // Add AI player
-                gameState.players.push({
-                    name: "AI Player",
-                    color: "#ff00ff",
-                    avatar: "🤖",
-                    wealth: 10,
-                    resources: 3,
-                    position: 0,
-                    skipTurns: 0,
-                    powerUps: [],
-                    isAI: true
-                });
-                updatePlayerDisplay();
-                placePlayerTokens();
-                showNotification("AI Player added!", 2000);
-            } else if (!gameState.aiEnabled && gameState.players.length > 1) {
+            
+            if (gameState.aiEnabled) {
+                // Add AI player if not already present
+                const hasAI = gameState.players.some(p => p.isAI);
+                if (!hasAI) {
+                    const playerColors = ["#00ffcc", "#ff00ff", "#ffaa00", "#00aaff", "#ff6b6b", "#34d399"];
+                    gameState.players.push({
+                        name: "AI Player",
+                        color: playerColors[gameState.players.length % playerColors.length],
+                        avatar: "🤖",
+                        wealth: 10,
+                        resources: 3,
+                        position: 0,
+                        skipTurns: 0,
+                        powerUps: [],
+                        isAI: true
+                    });
+                    updatePlayerDisplay();
+                    placePlayerTokens();
+                    showNotification("AI Player added!", 2000);
+                }
+            } else {
                 // Remove AI players
                 gameState.players = gameState.players.filter(p => !p.isAI);
                 if (gameState.currentPlayer >= gameState.players.length) {
@@ -2078,134 +2234,4 @@
     </script>
 </body>
 </html>
-<!-- ============================================= -->
-<!-- 3 FINAL FIXES — ADD THIS AT THE VERY BOTTOM   -->
-<!-- ============================================= -->
-
-<script>
-// FIX 1: Complete 40-space board (this was the #1 bug!)
-const boardLayout = [
-    { type: 'start',      label: 'START',      icon: 'Start',      corner: true },
-    { type: 'grant',      label: 'GRANT',      icon: 'Document' },
-    { type: 'community',  label: 'COMMUNITY',  icon: 'Handshake' },
-    { type: 'grant',      label: 'GRANT',      icon: 'Document' },
-    { type: 'obstacle',   label: 'BARRIER',    icon: 'Warning' },
-    { type: 'investment', label: 'INVEST',     icon: 'Chart' },
-    { type: 'grant',      label: 'GRANT',      icon: 'Document' },
-    { type: 'powerup',    label: 'POWER',      icon: 'Lightning' },
-    { type: 'grant',      label: 'GRANT',      icon: 'Document' },
-    { type: 'community',  label: 'COMMUNITY',  icon: 'Handshake' },
-    { type: 'investment', label: 'FREE INVEST',icon: 'Money',      corner: true }, // 10
-
-    { type: 'grant',      label: 'GRANT',      icon: 'Document' },
-    { type: 'obstacle',   label: 'BARRIER',    icon: 'Warning' },
-    { type: 'grant',      label: 'GRANT',      icon: 'Document' },
-    { type: 'powerup',    label: 'POWER',      icon: 'Lightning' },
-    { type: 'investment', label: 'INVEST',     icon: 'Chart' },
-    { type: 'grant',      label: 'GRANT',      icon: 'Document' },
-    { type: 'community',  label: 'COMMUNITY',  icon: 'Handshake' },
-    { type: 'grant',      label: 'GRANT',      icon: 'Document' },
-    { type: 'obstacle',   label: 'BARRIER',    icon: 'Warning' },
-
-    { type: 'obstacle',   label: 'MAJOR BARRIER', icon: 'Prohibited', corner: true }, // 20
-    { type: 'grant',      label: 'GRANT',      icon: 'Document' },
-    { type: 'powerup',    label: 'POWER',      icon: 'Lightning' },
-    { type: 'grant',      label: 'GRANT',      icon: 'Document' },
-    { type: 'investment', label: 'INVEST',     icon: 'Chart' },
-    { type: 'community',  label: 'COMMUNITY',  icon: 'Handshake' },
-    { type: 'grant',      label: 'GRANT',      icon: 'Document' },
-    { type: 'obstacle',   label: 'BARRIER',    icon: 'Warning' },
-    { type: 'grant',      label: 'GRANT',      icon: 'Document' },
-    { type: 'powerup',    label: 'POWER',      icon: 'Lightning' },
-    { type: 'powerup',    label: 'MEGA POWER', icon: 'Star',       corner: true }, // 30
-
-    { type: 'grant',      label: 'GRANT',      icon: 'Document' },
-    { type: 'obstacle',   label: 'BARRIER',    icon: 'Warning' },
-    { type: 'grant',      label: 'GRANT',      icon: 'Document' },
-    { type: 'community',  label: 'COMMUNITY',  icon: 'Handshake' },
-    { type: 'investment', label: 'INVEST',     icon: 'Chart' },
-    { type: 'grant',      label: 'GRANT',      icon: 'Document' },
-    { type: 'powerup',    label: 'POWER',      icon: 'Lightning' },
-    { type: 'grant',      label: 'GRANT',      icon: 'Document' },
-    { type: 'obstacle',   label: 'BARRIER',    icon: 'Warning' }  // ← SPACE #39 — THIS WAS MISSING!
-];
-
-// FIX 2: Player setup function (add this if it’s not already there)
-function setupPlayers(count) {
-    const box = document.getElementById('nameInputs');
-    box.innerHTML = '';
-    box.style.display = 'block';
-
-    for (let i = 0; i < count; i++) {
-        const div = document.createElement('div');
-        div.style.margin = '12px 0';
-        div.innerHTML = `<input type="text" id="pname${i}" value="Player ${i+1}" style="width:80%;padding:10px;background:#1a1f3a;border:1px solid #00ffcc;color:#00ffcc;border-radius:8px;">`;
-        box.appendChild(div);
-    }
-
-    const startBtn = document.createElement('button');
-    startBtn.className = 'action-button';
-    startBtn.textContent = 'START GAME';
-    startBtn.onclick = () => {
-        gameState.players = [];
-        for (let i = 0; i < count; i++) {
-            const name = document.getElementById(`pname${i}`).value.trim() || `Player ${i+1}`;
-            gameState.players.push({
-                name,
-                color: ['#00ffcc','#ff00ff','#00ff88','#ffaa00'][i],
-                wealth: 10,
-                resources: 3,
-                position: 0,
-                powerUps: [],
-                isAI: false
-            });
-        }
-        document.getElementById('playerSetupModal').classList.remove('active');
-        document.getElementById('gameUI').style.display = 'flex';
-        initializeGame();
-    };
-    box.appendChild(startBtn);
-}
-
-// FIX 3: Safe nextTurn (prevents crash when no players)
-function nextTurn() {
-    if (gameState.players.length === 0) {
-        alert("No players found — restarting game...");
-        startNewGame();
-        return;
-    }
-    gameState.currentPlayer = (gameState.currentPlayer + 1) % gameState.players.length;
-    gameState.diceRolled = false;
-    // ← keep the rest of your original nextTurn code below this line unchanged
-    if (gameState.currentPlayer === 0) {
-        gameState.round++;
-        addLogEntry(`Round ${gameState.round} begins!`);
-        if (gameState.round % 3 === 0) {
-            gameState.players.forEach(p => {
-                const income = Math.floor(p.wealth * 0.1);
-                p.wealth += income;
-                addLogEntry(`${p.name} earned ${income} WP passive income`);
-            });
-        }
-    }
-    document.getElementById('cardContent').innerHTML = '<p>Roll the dice to continue!</p>';
-    document.getElementById('cardActions').innerHTML = '';
-    document.getElementById('diceContainer').innerHTML = '';
-    updateDisplay();
-
-    const nextPlayer = gameState.players[gameState.currentPlayer];
-    if (nextPlayer.isAI && gameState.gameActive) {
-        setTimeout(() => rollDice(), 1500);
-    }
-}
-
-// Make sure the main game UI is hidden until players are chosen
-document.getElementById('gameUI').style.display = 'none';
-
-// Show player setup on load
-window.onload = () => {
-    createBoard();
-    initializeAchievements();
-    addLogEntry("Choose number of players to start!");
-};
-</script>
+           
